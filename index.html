@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Perceptron L or T</title>
+  <!-- Load PyScript -->
+  <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+</head>
+
+<body>
+<h1>L or T Perceptron</h1>
+
+<!-- 
+  Each cell is a checkbox to represent 0/1 
+  (unchecked = 0, checked = 1).
+-->
+<div id="grid">
+  <label><input type="checkbox" id="p0" /> (0,0)</label>
+  <label><input type="checkbox" id="p1" /> (0,1)</label>
+  <label><input type="checkbox" id="p2" /> (0,2)</label>
+  <br/>
+  <label><input type="checkbox" id="p3" /> (1,0)</label>
+  <label><input type="checkbox" id="p4" /> (1,1)</label>
+  <label><input type="checkbox" id="p5" /> (1,2)</label>
+  <br/>
+  <label><input type="checkbox" id="p6" /> (2,0)</label>
+  <label><input type="checkbox" id="p7" /> (2,1)</label>
+  <label><input type="checkbox" id="p8" /> (2,2)</label>
+</div>
+
+<button id="predictButton">Predict</button>
+<div id="result"></div>
+
+<py-script>
+training_data = [
+    #  L shapes => label -1
+    ([[1,0,0],[1,0,0],[1,1,1]], -1),
+    ([[0,1,0],[0,1,0],[1,1,1]], -1),
+    # T shapes => label +1
+    ([[1,1,1],[0,1,0],[0,1,0]], +1),
+    ([[1,1,1],[0,1,0],[0,1,0]], +1),
+]
+
+def flatten_3x3(grid):
+    return [pixel for row in grid for pixel in row]
+
+# Flatten inside the training data
+train_data_flat = []
+for (grid, label) in training_data:
+    train_data_flat.append( (flatten_3x3(grid), label) )
+
+def train_perceptron(training_data, epochs=10):
+    w = [0.0]*9
+    b = 0.0
+    for _ in range(epochs):
+        for X, y in training_data:
+            activation = sum(wi*xi for wi,xi in zip(w,X)) + b
+            pred = 1 if activation >= 0 else -1
+            if pred != y:
+                for i in range(len(w)):
+                    w[i] += y * X[i]
+                b += y
+    return w, b
+
+def predict_perceptron(X, w, b):
+    activation = sum(wi*xi for wi,xi in zip(w,X)) + b
+    return 1 if activation >= 0 else -1
+
+# Train once at startup
+w, b = train_perceptron(train_data_flat)
+
+# Expose the predictor to JS via pyscript
+def classify_current_input():
+    # Read the 9 checkboxes
+    import js
+    checkboxes = []
+    for i in range(9):
+        checkbox = js.document.getElementById(f"p{i}")
+        checkboxes.append(1 if checkbox.checked else 0)
+
+    prediction = predict_perceptron(checkboxes, w, b)
+    # Return text label
+    return "T" if prediction == 1 else "L"
+</py-script>
+
+<!-- Attach an onClick event to the button to run `classify_current_input` in Python -->
+<script>
+  const predictButton = document.getElementById('predictButton');
+  const resultDiv = document.getElementById('result');
+  
+  predictButton.addEventListener('click', async () => {
+    // Call the Python function
+    let prediction = await pyscript.runtime.globals.classify_current_input();
+    resultDiv.textContent = `Prediction: ${prediction}`;
+  });
+</script>
+
+</body>
+</html>
