@@ -18,9 +18,9 @@
     <label><input type="checkbox" id="p2"> (0,2)</label>
     <label><input type="checkbox" id="p3"> (0,3)</label>
     <br>
-    <label><input type="checkbox" id="p3"> (1,0)</label>
-    <label><input type="checkbox" id="p4"> (1,1)</label>
-    <label><input type="checkbox" id="p5"> (1,2)</label>
+    <label><input type="checkbox" id="p4"> (1,0)</label>
+    <label><input type="checkbox" id="p5"> (1,1)</label>
+    <label><input type="checkbox" id="p6"> (1,2)</label>
     <label><input type="checkbox" id="p7"> (1,3)</label>
     <br>
     <label><input type="checkbox" id="p8"> (2,0)</label>
@@ -35,177 +35,196 @@
   </div>
 
   <!-- Predict button + result area -->
-  <button id="predictButton">Predict</button>
+  <button id="predictButton" py-click="my_pred_function" class="py_button">Predict</button>
+
+  <div id="test-output">
+
+  </div>
+
+  <section class="pyscript">
   <div id="result"></div>
 
-  <py-script output="none" stderr="none" stdout="none">
-def flatten_4x4(grid):
-    return [pixel for row in grid for pixel in row]
+  <script type="py" config="pyscript.toml">
 
-L1 = [
-    [1,0,0,0],
-    [1,0,0,0],
-    [1,0,0,0],
-    [1,1,1,0]
-    ]
+    import numpy as np
+    import pandas as pd
+    import matplotlib.pyplot as plt
+    import matplotlib.tri as tri
+    from pyodide.http import open_url
+    from pyscript import display
+    from pyweb import pydom
 
-L2 = [
-    [0,1,0,0],
-    [0,1,0,0],
-    [0,1,0,0],
-    [0,1,1,1]
-    ]
-
-L3 = [
-    [1,0,0,0],
-    [1,0,0,0],
-    [1,1,1,0],
-    [0,0,0,0]
-    ]
-
-L4 = [
-    [0,1,0,0],
-    [0,1,0,0],
-    [0,1,1,1],
-    [0,0,0,0]
-    ]
-
-L5 = [
-    [0,0,0,0],
-    [1,0,0,0],
-    [1,0,0,0],
-    [1,1,1,0]
-    ]
-
-L6 = [
-    [0,0,0,0],
-    [0,1,0,0],
-    [0,1,0,0],
-    [0,1,1,1]
-    ]
-
-L7 = [
-    [1,0,0,0],
-    [1,0,0,0],
-    [1,0,0,0],
-    [1,1,1,1]
-    ]
     
-T1 = [
-    [1,1,1,0],
-    [0,1,0,0],
-    [0,1,0,0],
-    [0,1,0,0]
-    ]
+  def flatten_4x4(grid):
+      return [pixel for row in grid for pixel in row]
+  
+  L1 = [
+      [1,0,0,0],
+      [1,0,0,0],
+      [1,0,0,0],
+      [1,1,1,0]
+      ]
+  
+  L2 = [
+      [0,1,0,0],
+      [0,1,0,0],
+      [0,1,0,0],
+      [0,1,1,1]
+      ]
+  
+  L3 = [
+      [1,0,0,0],
+      [1,0,0,0],
+      [1,1,1,0],
+      [0,0,0,0]
+      ]
+  
+  L4 = [
+      [0,1,0,0],
+      [0,1,0,0],
+      [0,1,1,1],
+      [0,0,0,0]
+      ]
+  
+  L5 = [
+      [0,0,0,0],
+      [1,0,0,0],
+      [1,0,0,0],
+      [1,1,1,0]
+      ]
+  
+  L6 = [
+      [0,0,0,0],
+      [0,1,0,0],
+      [0,1,0,0],
+      [0,1,1,1]
+      ]
+  
+  L7 = [
+      [1,0,0,0],
+      [1,0,0,0],
+      [1,0,0,0],
+      [1,1,1,1]
+      ]
+      
+  T1 = [
+      [1,1,1,0],
+      [0,1,0,0],
+      [0,1,0,0],
+      [0,1,0,0]
+      ]
+  
+  T2 = [
+      [0,1,1,1],
+      [0,0,1,0],
+      [0,0,1,0],
+      [0,0,1,0]
+      ]
+  
+  T3 = [
+      [1,1,1,0],
+      [0,1,0,0],
+      [0,1,0,0],
+      [0,0,0,0]
+      ]
+  
+  T4 = [
+      [0,1,1,1],
+      [0,0,1,0],
+      [0,0,1,0],
+      [0,0,0,0]
+      ]
+  
+  T5 = [
+      [0,0,0,0],
+      [1,1,1,0],
+      [0,1,0,0],
+      [0,1,0,0]
+      ]
+  
+  T6 = [
+      [0,0,0,0],
+      [0,1,1,1],
+      [0,0,1,0],
+      [0,0,1,0]
+      ]
+  
+  T7 = [
+      [1,1,1,1],
+      [0,1,0,0],
+      [0,1,0,0],
+      [0,1,0,0]
+      ]
+  
+  training_data = [
+      (flatten_4x4(L1),  -1),
+      (flatten_4x4(L2),  -1),
+      (flatten_4x4(L3),  -1),
+      (flatten_4x4(L4),  -1),
+      (flatten_4x4(L5),  -1),
+      (flatten_4x4(L6),  -1),
+      (flatten_4x4(L7),  -1),
+      (flatten_4x4(T1),  1),
+      (flatten_4x4(T2),  1),
+      (flatten_4x4(T3),  1),
+      (flatten_4x4(T4),  1),
+      (flatten_4x4(T5),  1),
+      (flatten_4x4(T6),  1),
+      (flatten_4x4(T7),  1),
+  ]
 
-T2 = [
-    [0,1,1,1],
-    [0,0,1,0],
-    [0,0,1,0],
-    [0,0,1,0]
-    ]
-
-T3 = [
-    [1,1,1,0],
-    [0,1,0,0],
-    [0,1,0,0],
-    [0,0,0,0]
-    ]
-
-T4 = [
-    [0,1,1,1],
-    [0,0,1,0],
-    [0,0,1,0],
-    [0,0,0,0]
-    ]
-
-T5 = [
-    [0,0,0,0],
-    [1,1,1,0],
-    [0,1,0,0],
-    [0,1,0,0]
-    ]
-
-T6 = [
-    [0,0,0,0],
-    [0,1,1,1],
-    [0,0,1,0],
-    [0,0,1,0]
-    ]
-
-T7 = [
-    [1,1,1,1],
-    [0,1,0,0],
-    [0,1,0,0],
-    [0,1,0,0]
-    ]
-
-training_data = [
-    (flatten_4x4(L1),  -1),
-    (flatten_4x4(L2),  -1),
-    (flatten_4x4(L3),  -1),
-    (flatten_4x4(L4),  -1),
-    (flatten_4x4(L5),  -1),
-    (flatten_4x4(L6),  -1),
-    (flatten_4x4(L7),  -1),
-    (flatten_4x4(T1),  1),
-    (flatten_4x4(T2),  1),
-    (flatten_4x4(T3),  1),
-    (flatten_4x4(T4),  1),
-    (flatten_4x4(T5),  1),
-    (flatten_4x4(T6),  1),
-    (flatten_4x4(T7),  1),
-]
-
-# The Perceptron Algo
-def train_perceptron(training_data, epochs=10):
-    w = [0.0]*16
-    b = 0.0
-    for _ in range(epochs):
-        for X, y in training_data:
-            activation = sum(wi*xi for wi, xi in zip(w,X)) + b
-            pred = 1 if activation >= 0 else -1
-            if pred != y:
-                for i in range(len(w)):
-                    w[i] += y * X[i]
-                b += y
-    return w, b
-
-def predict_perceptron(X, w, b):
-    activation = sum(wi*xi for wi,xi in zip(w,X)) + b
-    return 1 if activation >= 0 else -1
-
-# Train once PAGE LOADS
-w, b = train_perceptron(training_data, epochs=20)
-
-
-# Pred Function
-def classify_current_input():
-    import js
-    # read checkboxes
-    inputs = []
-    for i in range(16):
-        checkbox = js.document.getElementById(f"p{i}")
-        inputs.append(1 if checkbox.checked else 0)
-
-    # make prediction
-    p = predict_perceptron(inputs, w, b)
-    return "T" if pred == 1 else "L"
-  </py-script>
-
-  <script>
-    // Wait until PyScript loads
-    window.addEventListener('pyloaded', () => {
-      const btn = document.getElementById('predictButton');
-      const resultDiv = document.getElementById('result');
-
-      predictButton.addEventListener('click', async () => {
-        // Call the Python function
-        const prediction = await pyscript.runtime.globals.classify_current_input();
-        resultDiv.textContent = `Prediction: ${prediction}`;
+  ## view training data on web
+  pydom["div#test-output"].html = training_data
+    
+  # The Perceptron Algo
+  def train_perceptron(training_data, epochs=10):
+      w = [0.0]*16
+      b = 0.0
+      for _ in range(epochs):
+          for X, y in training_data:
+              activation = sum(wi*xi for wi, xi in zip(w,X)) + b
+              pred = 1 if activation >= 0 else -1
+              if pred != y:
+                  for i in range(len(w)):
+                      w[i] += y * X[i]
+                  b += y
+      return w, b
+  
+  def predict_perceptron(X, w, b):
+      activation = sum(wi*xi for wi,xi in zip(w,X)) + b
+      return 1 if activation >= 0 else -1
+  
+  # Train once PAGE LOADS
+  w, b = train_perceptron(training_data, epochs=20)
+  
+  
+  # Pred Function
+  def classify_current_input():
+      import js
+      # read checkboxes
+      inputs = []
+      for i in range(16):
+          checkbox = js.document.getElementById(f"p{i}")
+          inputs.append(1 if checkbox.checked else 0)
+  
+      # make prediction
+      p = predict_perceptron(inputs, w, b)
+      return "T" if p == 1 else "L"
+    </script>
+  
+    <script>
+      // Wait until PyScript loads
+      window.addEventListener('pyloaded', () => {
+        const btn = document.getElementById('predictButton');
+        const resultDiv = document.getElementById('result');
+  
+        predictButton.addEventListener('click', async () => {
+          // Call the Python function
+          const prediction = await pyscript.runtime.globals.classify_current_input();
+          resultDiv.textContent = `Prediction: ${prediction}`;
+        });
       });
-    });
-  </script>
+    </script>
 
 </body>
 </html>
