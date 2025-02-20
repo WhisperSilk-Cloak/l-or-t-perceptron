@@ -32,7 +32,7 @@
 <button id="predictButton">Predict</button>
 <div id="result"></div>
 
-<py-script>
+<py-script output="none">
 training_data = [
     #  L shapes => label -1
     ([[1,0,0],[1,0,0],[1,1,1]], -1),
@@ -84,13 +84,15 @@ def classify_current_input():
 
 <!-- Attach an onClick event to the button to run `classify_current_input` in Python -->
 <script>
-  const predictButton = document.getElementById('predictButton');
-  const resultDiv = document.getElementById('result');
-  
-  predictButton.addEventListener('click', async () => {
-    // Call the Python function
-    let prediction = await pyscript.runtime.globals.classify_current_input();
-    resultDiv.textContent = `Prediction: ${prediction}`;
+  window.addEventListener('pyloaded', () => {
+    const predictButton = document.getElementById('predictButton');
+    const resultDiv = document.getElementById('result');
+    
+    predictButton.addEventListener('click', async () => {
+      // Call the Python function
+      let prediction = await pyscript.runtime.globals.classify_current_input();
+      resultDiv.textContent = `Prediction: ${prediction}`;
+  });
   });
 </script>
 
