@@ -38,7 +38,7 @@
   <button id="predictButton">Predict</button>
   <div id="result"></div>
 
-  <py-script output="none">
+  <py-script output="none" stderr="none" stdout="none">
 def flatten_4x4(grid):
     return [pixel for row in grid for pixel in row]
 
