@@ -41,7 +41,7 @@
   <section class="pyscript">
     <div id="result"></div>
 
-    <script type="py" config="pyscript.toml">
+<script type="py" config="pyscript.toml">
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -204,21 +204,21 @@ def classify_current_input():
     # make prediction
     p = predict_perceptron(inputs, w, b)
     return "T" if p == 1 else "L"
-    </script>
+</script>
 
-    <script>
-      // Wait until PyScript loads
-      window.addEventListener('pyloaded', () => {
-        const btn = document.getElementById('predictButton');
-        const resultDiv = document.getElementById('result');
+<script>
+  // Wait until PyScript loads
+  window.addEventListener('pyloaded', () => {
+    const btn = document.getElementById('predictButton');
+    const resultDiv = document.getElementById('result');
 
-        btn.addEventListener('click', async () => {
-          // Call the Python function
-          const prediction = await pyscript.runtime.globals.classify_current_input();
-          resultDiv.textContent = `Prediction: ${prediction}`;
-        });
-      });
-    </script>
-  </section>
+    btn.addEventListener('click', async () => {
+      // Call the Python function
+      const prediction = await pyscript.runtime.globals.classify_current_input();
+      resultDiv.textContent = `Prediction: ${prediction}`;
+    });
+  });
+</script>
+</section>
 </body>
 </html>
