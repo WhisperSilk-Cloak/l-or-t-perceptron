@@ -171,7 +171,7 @@ training_data = [
 pydom["div#test-output"].html = training_data
 
 # The Perceptron Algo
-def train_perceptron(training_data, epochs=10):
+def train_perceptron(training_data, epochs=50):
     w = [0.0] * 16
     b = 0.0
     for _ in range(epochs):
@@ -189,7 +189,7 @@ def predict_perceptron(X, w, b):
     return 1 if activation >= 0 else -1
 
 # Train once PAGE LOADS
-w, b = train_perceptron(training_data, epochs=20)
+w, b = train_perceptron(training_data, epochs=50)
 
 # Pred Function
 @export
