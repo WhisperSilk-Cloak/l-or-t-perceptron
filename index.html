@@ -2,15 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <title>L or T perceptron</title>
-  <!-- Load PyScript -->
-  <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css"/>
-  <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+  <title>L or T Perceptron</title>
+  <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css" />
+  <script defer type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
 </head>
 <body>
   <h1>L OR T?</h1>
 
-  <!-- 4×4 checkboxes for input -->
+  <!-- 4×4 checkboxes for drawing -->
   <div id="grid">
     <label><input type="checkbox" id="p0"> (0,0)</label>
     <label><input type="checkbox" id="p1"> (0,1)</label>
@@ -33,24 +32,27 @@
     <label><input type="checkbox" id="p15"> (3,3)</label>
   </div>
 
-  <!-- Predict button + result area -->
+  <!-- Predict button & output areas -->
   <button id="predictButton" py-click="my_pred_function" class="py_button">Predict</button>
 
   <div id="test-output"></div>
+  <div id="result"></div>
 
   <section class="pyscript">
-    <div id="result"></div>
-
-<script type="py" config="pyscript.toml">
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-import matplotlib.tri as tri
-from pyscript import display
+    
+    <script type="py" config="pyscript.toml">
+import js
 from pyweb import pydom
 
+import numpy as np
+
+##############################
+# HELPER: Flatten a 4x4 into a 16D vector
 def flatten_4x4(grid):
     return [pixel for row in grid for pixel in row]
+
+##############################
+# Define all "L" shapes (label = -1) and "T" shapes (label = +1)
 
 L1 = [
     [1, 0, 0, 0],
@@ -58,42 +60,36 @@ L1 = [
     [1, 0, 0, 0],
     [1, 1, 1, 0]
 ]
-
 L2 = [
     [0, 1, 0, 0],
     [0, 1, 0, 0],
     [0, 1, 0, 0],
     [0, 1, 1, 1]
 ]
-
 L3 = [
     [1, 0, 0, 0],
     [1, 0, 0, 0],
     [1, 1, 1, 0],
     [0, 0, 0, 0]
 ]
-
 L4 = [
     [0, 1, 0, 0],
     [0, 1, 0, 0],
     [0, 1, 1, 1],
     [0, 0, 0, 0]
 ]
-
 L5 = [
     [0, 0, 0, 0],
     [1, 0, 0, 0],
     [1, 0, 0, 0],
     [1, 1, 1, 0]
 ]
-
 L6 = [
     [0, 0, 0, 0],
     [0, 1, 0, 0],
     [0, 1, 0, 0],
     [0, 1, 1, 1]
 ]
-
 L7 = [
     [1, 0, 0, 0],
     [1, 0, 0, 0],
@@ -107,48 +103,46 @@ T1 = [
     [0, 1, 0, 0],
     [0, 1, 0, 0]
 ]
-
 T2 = [
     [0, 1, 1, 1],
     [0, 0, 1, 0],
     [0, 0, 1, 0],
     [0, 0, 1, 0]
 ]
-
 T3 = [
     [1, 1, 1, 0],
     [0, 1, 0, 0],
     [0, 1, 0, 0],
     [0, 0, 0, 0]
 ]
-
 T4 = [
     [0, 1, 1, 1],
     [0, 0, 1, 0],
     [0, 0, 1, 0],
     [0, 0, 0, 0]
 ]
-
 T5 = [
     [0, 0, 0, 0],
     [1, 1, 1, 0],
     [0, 1, 0, 0],
     [0, 1, 0, 0]
 ]
-
 T6 = [
     [0, 0, 0, 0],
     [0, 1, 1, 1],
     [0, 0, 1, 0],
     [0, 0, 1, 0]
 ]
-
 T7 = [
     [1, 1, 1, 1],
     [0, 1, 0, 0],
     [0, 1, 0, 0],
     [0, 1, 0, 0]
 ]
+
+##############################
+# Create training data: (flattened input, label)
+# Use label = -1 for L, +1 for T
 
 training_data = [
     (flatten_4x4(L1), -1),
@@ -167,18 +161,19 @@ training_data = [
     (flatten_4x4(T7),  1),
 ]
 
-## view training data on web
-pydom["div#test-output"].html = training_data
+pydom["test-output"].html = f"{training_data}"
 
-# The Perceptron Algo
+##############################
+
 def train_perceptron(training_data, epochs=50):
-    w = [0.0] * 16
+    w = [0.0] * 16  # 16 features
     b = 0.0
     for _ in range(epochs):
         for X, y in training_data:
             activation = sum(wi * xi for wi, xi in zip(w, X)) + b
             pred = 1 if activation >= 0 else -1
             if pred != y:
+                # Update rule
                 for i in range(len(w)):
                     w[i] += y * X[i]
                 b += y
@@ -188,37 +183,33 @@ def predict_perceptron(X, w, b):
     activation = sum(wi * xi for wi, xi in zip(w, X)) + b
     return 1 if activation >= 0 else -1
 
-# Train once PAGE LOADS
+##############################
 w, b = train_perceptron(training_data, epochs=50)
 
-# Pred Function
+##############################
+from pyscript import js as _js
+from pyscript._module import export  # for PyScript 2024+ if needed
+
 @export
-def classify_current_input():
-    import js
-    # read checkboxes
+def my_pred_function():
+    # 1) read the 16 checkboxes
     inputs = []
     for i in range(16):
-        checkbox = js.document.getElementById(f"p{i}")
-        inputs.append(1 if checkbox.checked else 0)
-  
-    # make prediction
+        checkbox = _js.document.getElementById(f"p{i}")
+        val = 1 if checkbox.checked else 0
+        inputs.append(val)
+
+    # 2) run perceptron prediction
     p = predict_perceptron(inputs, w, b)
-    return "T" if p == 1 else "L"
-</script>
 
-<script>
-  // Wait until PyScript loads
-  window.addEventListener('pyloaded', () => {
-    const btn = document.getElementById('predictButton');
-    const resultDiv = document.getElementById('result');
+    # 3) interpret +1 => 'T', -1 => 'L'
+    result_str = "T" if p == 1 else "L"
 
-    btn.addEventListener('click', async () => {
-      // Call the Python function
-      const prediction = await pyscript.runtime.globals.classify_current_input();
-      resultDiv.textContent = `Prediction: ${prediction}`;
-    });
-  });
-</script>
-</section>
+    # 4) display in <div id="result">
+    pydom["result"].html = f"Prediction: {result_str}"
+    return  # or just return result_str if you prefer
+
+    </script>
+  </section>
 </body>
 </html>
