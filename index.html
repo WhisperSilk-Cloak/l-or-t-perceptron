@@ -41,7 +41,6 @@
     <script type="py" config="pyscript.toml">
 import js
 import numpy as np
-from pyscript._module import export
 
 ##############################
 # HELPER: Flatten a 4x4 into a 16D vector
@@ -183,7 +182,6 @@ def predict_perceptron(X, w, b):
 w, b = train_perceptron(training_data, epochs=50)
 
 ##############################
-@export
 def my_pred_function():
     # 1) read the 16 checkboxes
     inputs = []
