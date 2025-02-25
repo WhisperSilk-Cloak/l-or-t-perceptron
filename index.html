@@ -43,12 +43,12 @@ import js
 import numpy as np
 
 ##############################
-# HELPER: Flatten a 4x4 into a 16D vector
+# To vector
 def flatten_4x4(grid):
     return [pixel for row in grid for pixel in row]
 
 ##############################
-# Define all "L" shapes (label = -1) and "T" shapes (label = +1)
+# Define all L shapes (label = -1) and T shapes (label = 1)
 
 L1 = [
     [1, 0, 0, 0],
@@ -137,7 +137,7 @@ T7 = [
 ]
 
 ##############################
-# Create training data: (flattened input, label)
+# Create training data: (vector, label)
 
 training_data = [
     (flatten_4x4(L1), -1),
